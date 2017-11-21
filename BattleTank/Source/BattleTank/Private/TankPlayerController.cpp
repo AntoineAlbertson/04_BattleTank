@@ -12,21 +12,16 @@ void ATankPlayerController::Tick(float DeltaTime)
 	AimTowardCrossair();
 
 }
-	//Super
-	//Aim toward crossair()
 
 void ATankPlayerController::BeginPlay() 
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("BeginPlay Reporting"))
-
-		auto ControlledTank = GetControlledTank();
+	auto ControlledTank = GetControlledTank();
 
 	if (!ControlledTank) {
 		UE_LOG(LogTemp, Error, TEXT("Not possessing any Tank"))
 	}
-	else { UE_LOG(LogTemp, Warning, TEXT("Controlled Tank: %s"), *(ControlledTank->GetName())) }
 
 }
 
@@ -39,7 +34,7 @@ void ATankPlayerController::AimTowardCrossair()
 	if (GetSighRayHitLocation(HitLocation)) //Has "side effect", going to line trace and set the HitLocation
 	{
 	
-	UE_LOG(LogTemp, Warning, TEXT("Hit Location: %s"), *HitLocation.ToString())
+		GetControlledTank()->AimAt(HitLocation);
 
 	//Get world location if linetrace through crossair
 	//If hit landscape
