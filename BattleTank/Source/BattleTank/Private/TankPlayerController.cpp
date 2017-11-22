@@ -33,7 +33,6 @@ void ATankPlayerController::AimTowardCrossair()
 
 	if (GetSighRayHitLocation(HitLocation)) //Has "side effect", going to line trace and set the HitLocation
 	{
-	
 		GetControlledTank()->AimAt(HitLocation);
 
 	//Get world location if linetrace through crossair

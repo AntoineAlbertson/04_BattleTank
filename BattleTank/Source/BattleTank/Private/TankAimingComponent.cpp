@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TankAimingComponent.h"
+#include "Classes/Kismet/GameplayStatics.h"
+#include "Engine/StaticMeshActor.h"
 
 
 // Sets default values for this component's properties
@@ -15,28 +17,57 @@ UTankAimingComponent::UTankAimingComponent()
 
 
 
-
-// Called when the game starts
-void UTankAimingComponent::BeginPlay()
+void UTankAimingComponent::AimingAt(FVector HitLocation,float LaunchSpeed)
 {
-	Super::BeginPlay();
-
-	// ...
+	if(!Barrel){
+		UE_LOG(LogTemp, Error, TEXT("No Barrel"))
+			return;
+	}
 	
+	FVector OutLaunchVelocity;
+	FVector StartLocation = Barrel->GetSocketLocation(FName{ "BarrelEnd" });
+	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
+		this,
+		OutLaunchVelocity,
+		StartLocation,
+		HitLocation,
+		LaunchSpeed,
+		ESuggestProjVelocityTraceOption::DoNotTrace
+
+	);
+
+	//Calculate the OutLaunchVelocity
+	if (bHaveAimSolution) 
+	{
+	auto AimDirection = OutLaunchVelocity.GetSafeNormal();
+
+	MoveBarrelTowards(AimDirection);
+
+	}
+	
+
 }
 
-
-// Called every frame
-void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
+	auto TurretRotator = Turret->GetForwardVector().Rotation();
+	auto AimAsRotator = AimDirection.Rotation();
+	auto DeltaRotator = AimAsRotator - BarrelRotator;
+	
 
-	// ...
+	//UE_LOG(LogTemp, Warning, TEXT("AimAsRotator: %s"), *AimAsRotator.ToString())
+
+		Barrel->Elevate(5); //TODO remove magic number
+
 }
 
-void UTankAimingComponent::AimingAt(FVector HitLocation)
+void UTankAimingComponent::SetBarrelReference(UTankBarrel * BarrelToSet)
 {
-	auto TankName = GetOwner()->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("%s aim at: %s"), *TankName, *HitLocation.ToString())
+	Barrel = BarrelToSet;
+}
 
+void UTankAimingComponent::SetTurretReference(UStaticMeshComponent * TurretToSet)
+{
+	Turret = TurretToSet;
 }
