@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #include "TankAimingComponent.h"
+#include "TankBarrel.h"
 #include "Classes/Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
 
@@ -23,6 +23,10 @@ void UTankAimingComponent::AimingAt(FVector HitLocation,float LaunchSpeed)
 		UE_LOG(LogTemp, Error, TEXT("No Barrel"))
 			return;
 	}
+	if (!Turret) {
+		UE_LOG(LogTemp, Error, TEXT("No Turret"))
+			return;
+	}
 	
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName{ "BarrelEnd" });
@@ -32,6 +36,9 @@ void UTankAimingComponent::AimingAt(FVector HitLocation,float LaunchSpeed)
 		StartLocation,
 		HitLocation,
 		LaunchSpeed,
+		false,
+		0,
+		0,
 		ESuggestProjVelocityTraceOption::DoNotTrace
 
 	);
@@ -44,6 +51,9 @@ void UTankAimingComponent::AimingAt(FVector HitLocation,float LaunchSpeed)
 	MoveBarrelTowards(AimDirection);
 
 	}
+	else{
+		UE_LOG(LogTemp, Error, TEXT("No Aim found"))
+	}
 	
 
 }
@@ -51,12 +61,12 @@ void UTankAimingComponent::AimingAt(FVector HitLocation,float LaunchSpeed)
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
-	auto TurretRotator = Turret->GetForwardVector().Rotation();
+	//auto TurretRotator = Turret->GetForwardVector().Rotation();
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
 	
 
-	//UE_LOG(LogTemp, Warning, TEXT("AimAsRotator: %s"), *AimAsRotator.ToString())
+	UE_LOG(LogTemp, Warning, TEXT("AimAsRotator: %s"), *AimAsRotator.ToString())
 
 		Barrel->Elevate(5); //TODO remove magic number
 
@@ -67,7 +77,7 @@ void UTankAimingComponent::SetBarrelReference(UTankBarrel * BarrelToSet)
 	Barrel = BarrelToSet;
 }
 
-void UTankAimingComponent::SetTurretReference(UStaticMeshComponent * TurretToSet)
+void UTankAimingComponent::SetTurretReference(UTankTurret * TurretToSet)
 {
 	Turret = TurretToSet;
 }

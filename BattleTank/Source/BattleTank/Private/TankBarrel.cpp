@@ -5,8 +5,8 @@
 
 
 
-void UTankBarrel::Elevate(float DegreesPerSeconds) {
+void UTankBarrel::Elevate(float RelativeSpeed) {
 
-
+	auto Time = GetWorld()->GetTimeSeconds();
 	UE_LOG(LogTemp, Warning, TEXT("BarrelElevate Call"))
 }
